@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gocql/gocql"
 )
@@ -35,9 +36,7 @@ func main() {
 		port = args[1]
 	}
 	cluster := gocql.NewCluster(server)
-	if *keyspace != "" {
-		cluster.Keyspace = *keyspace
-	}
+	cluster.Timeout = 30 * time.Second
 	if s, err := strconv.ParseInt(port, 10, 64); err == nil {
 		cluster.Port = int(s)
 	} else {
@@ -51,16 +50,49 @@ func main() {
 	}
 
 	fmt.Printf("Connecting to %s:%s ...\n", server, port)
-	session, err := cluster.CreateSession()
-	defer session.Close()
-	if err != nil {
-		fmt.Println("No connection to cassandra cluster", err)
-		os.Exit(1)
-	}
 
 	if *command != "" {
-		if strings.HasPrefix(strings.ToLower(*command), "select") {
-			if rows, err := session.Query(*command).Iter().SliceMap(); err == nil {
+		executeCQL(cluster, *command)
+	} else if *file != "" {
+		data, err := ioutil.ReadFile(*file)
+		if err != nil {
+			fmt.Println("Failed to read CQL script file", err)
+			os.Exit(1)
+		}
+		commands := strings.Split(string(data), ";")
+		for _, c := range commands {
+			c = strings.TrimSpace(c)
+			if c != "" {
+				executeCQL(cluster, c+";")
+			}
+		}
+	} else {
+		fmt.Println("Nothing todo: -e and -f undefined")
+	}
+}
+
+func executeCQL(cluster *gocql.ClusterConfig, cmd string) {
+	//TODO ignore ErrTimeoutNoResponse
+	//cmd = strings.Replace(cmd, "\n", "", -1) //TODO better
+	//cmd = strings.Replace(cmd, "\r", "", -1) //TODO better
+	fmt.Println("Executing CQL command", cmd)
+	if strings.HasPrefix(strings.ToLower(cmd), "use") { //Change keyspace
+		*keyspace = strings.ToLower(strings.TrimSpace(strings.Trim(cmd[3:], ";")))
+		//time.Sleep(30 * time.Second) //TODO better to wait for keyspace if is in creation
+		fmt.Println("Success !")
+		return
+	} else {
+		if *keyspace != "" {
+			cluster.Keyspace = *keyspace
+		}
+		session, err := cluster.CreateSession()
+		defer session.Close()
+		if err != nil {
+			fmt.Println("No connection to cassandra cluster", err)
+			os.Exit(1)
+		}
+		if strings.HasPrefix(strings.ToLower(cmd), "select") {
+			if rows, err := session.Query(cmd).Iter().SliceMap(); err == nil {
 				data, err := json.MarshalIndent(rows, "", "  ")
 				if err != nil {
 					fmt.Println("Failed to format CQL result", err)
@@ -71,54 +103,15 @@ func main() {
 				fmt.Println("Failed to execute CQL command", err)
 				os.Exit(1)
 			}
-			/*
-				cols := iter.Columns()
-				if len(cols) == 0 {
-					fmt.Printf("No result : %v\n", iter.Close())
-					return
-				}
-			*/
-			/*
-				for {
-					// New map each iteration
-					row = make(map[string]interface{})
-					if !iter.MapScan(row) {
-						break
-					}
-					// Do things with row
-					if fullname, ok := row["fullname"]; ok {
-						fmt.Printf("Full Name: %s\n", fullname)
-					}
-				}
-			*/
-			//fmt.Println("Failed to execute CQL command", err)
-			//os.Exit(1)
-			//iter.Close()
-
 		} else {
-			if err = session.Query(*command).Exec(); err != nil {
+			if err := session.Query(cmd).Exec(); err != nil {
 				fmt.Println("Failed to execute CQL command", err)
 				os.Exit(1)
 			}
 		}
-		fmt.Println("Success !")
-	} else if *file != "" {
-		data, err := ioutil.ReadFile(*file)
-		if err != nil {
-			fmt.Println("Failed to read CQL script file", err)
-			os.Exit(1)
-		}
-
-		if err = session.Query(string(data)).Exec(); err != nil {
-			fmt.Println("Failed to execute CQL script file", err)
-			os.Exit(1)
-		}
-		fmt.Println("Success !")
-	} else {
-		fmt.Println("Nothing todo: -e and -f undefined")
 	}
+	fmt.Println("Success !")
 }
-
 func helpMsg() {
 	fmt.Println("Usage: gocqlcli [options] [host [port]]")
 	fmt.Println("Options:")

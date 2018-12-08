@@ -15,3 +15,5 @@ Options:
   -u string
     	Authenticate as user. Default = cassandra. (default "cassandra")
 ```
+
+The main goal is to have a cross-patform solution with no deps to deploy cassandra script file or single command easily.
