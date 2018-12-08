@@ -13,6 +13,18 @@ import (
 	"github.com/gocql/gocql"
 )
 
+var (
+	//Version version of app set by build flag
+	Version string
+	//Branch git branch of app set by build flag
+	Branch string
+	//Commit git commit of app set by build flag
+	Commit string
+	//BuildTime build time of app set by build flag
+	BuildTime string
+)
+
+var displayVersion = flag.Bool("version", false, "gocqlcli version.")
 var file = flag.String("f", "", "Execute commands from FILE, then exit.")
 var command = flag.String("e", "", "Execute the CQL statement and exit.")
 var username = flag.String("u", "cassandra", "Authenticate as user. Default = cassandra.")
@@ -23,6 +35,10 @@ func main() {
 	//Disable default logger (for gocql)
 	//log.SetOutput(ioutil.Discard)
 	flag.Parse()
+	if *displayVersion {
+		displayVersionMsg()
+		return
+	}
 	args := flag.Args()
 	if len(args) > 2 {
 		helpMsg()
@@ -110,9 +126,15 @@ func executeCQL(cluster *gocql.ClusterConfig, cmd string) {
 	}
 	fmt.Println("Success !")
 }
+
+func displayVersionMsg() {
+	fmt.Printf("\nVersion: %s - Branch: %s - Commit: %s - BuildTime: %s\n\n", Version, Branch, Commit, BuildTime)
+}
+
 func helpMsg() {
 	fmt.Println("Usage: gocqlcli [options] [host [port]]")
 	fmt.Println("Options:")
 	flag.PrintDefaults()
+	displayVersionMsg()
 	os.Exit(1)
 }
