@@ -49,8 +49,6 @@ func main() {
 		Password: *password,
 	}
 
-	fmt.Printf("Connecting to %s:%s ...\n", server, port)
-
 	if *command != "" {
 		executeCQL(cluster, *command)
 	} else if *file != "" {
