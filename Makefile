@@ -13,6 +13,7 @@ LDFLAGS = \
 
 GO111MODULE=on
 GOPATH ?= $(HOME)/go
+OSARCH := "linux/amd64 linux/386 linux/arm windows/amd64 windows/386 darwin/amd64"
 
 ERROR_COLOR=\033[31;01m
 NO_COLOR=\033[0m
@@ -32,7 +33,7 @@ compress:
 	@upx --brute $(APP_NAME) || upx-ucl --brute $(APP_NAME) || echo -e "$(WARN_COLOR)==> No tools found to compress binary.$(NO_COLOR)"
 
 release: clean format
-	gox -ldflags "$(LDFLAGS)" -output="build/{{.Dir}}_{{.OS}}_{{.Arch}}"
+	gox -osarch=$(OSARCH) -ldflags "$(LDFLAGS)" -output="build/{{.Dir}}_{{.OS}}_{{.Arch}}"
 	@echo -e "$(OK_COLOR)==> Trying to compress binary ...$(NO_COLOR)"
 	@upx --brute  build/${APP_NAME}* || upx-ucl --brute  build/${APP_NAME}* || echo -e "$(WARN_COLOR)==> No tools found to compress binary.$(NO_COLOR)"
 
