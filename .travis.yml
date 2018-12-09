@@ -3,33 +3,30 @@ addons:
   apt:
     packages:
     - upx-ucl
-    
 go:
-  - "1.10"
-  - "1.11"
+- '1.10'
+- '1.11'
 
 env:
-  - GO111MODULE=on
-
+- GO111MODULE=on
 
 install:
-  - make dev-deps
+- make dev-deps
 
 script:
-  - make lint
-  - make build
-  - ./gocqlcli -version
+- make lint
+- make build
+- "./gocqlcli -version"
 
 before_deploy:
-  - make release
+- make release
 
 deploy:
   provider: releases
   api_key:
-    secure: SAD6luuJhgzS7ZavymCxLaTlCbxp9VQax0uf4ozWByt0uwsLKtDM4Je4c9z9bx40PmEBKOpSoso4umL4AcY1yrQ2UTMJD+GxedmqDnge2ibfhHZMTxeDkLF3JLsACfQmibNzN/+b9nNdgyzQYnB4+OvKOmEvtHWwNP7qOuU+9QTNK/rNt5MBXk29aJFL1/t3oIvCfHl1D96pssE6uVURcXiPGkgNcSLBUewYwPwqjGqgG/xu/lgQEwpW6AE4OfwJLpdGMR/V1DUNMNs47Gt7Vh+PBRm/M7cZUYyc+CRuXuSM+PKr9xlH8mFHu6IrcM4n5Sy94A7ldB5dfn9HA+WLXEOhSej3NB06sFkjITnKSWCVCGVzzXuH5CMiwBDRKmhFLunFe9Wcz52W2wIumesaNuZOm9LbiBV47UicggeiZkhar1tvjQoFgw6R57+Wxdhdon7fwVO3euRSH7fm0RyEN1PgO92U5/gHgOO+Khlsl3GPqWNgyqeh0Ej4Ke9mFB0VjO+a8uNAQlrp+v94kQSWqpXUD30/fnZhu+sBURJ1pikH/WAhcnKEvYk7Kq5/kSuYqO0dxxEDrHh00Gwo/uHhhnOp3BNe/v1/TseSS4FOxaLrbTKCDRU+B38bsi8FoZ7J68xK9dT19TF+6ZXqka1LNIyV4ITCjkRenHMfCWWrF78=
+    secure: lSEwCHfihq+pNdi4dtwfcxvyhydabXzURuUpnaIoYfEFbXD9oAjhJr2jyM3dwIteyQ1abf56yA8W86lnwapMkoyn6Yu81PphoQJa9b++1k61xnoJl1fwRYKbtuTNizTuI62pBXbQndp60jrAZGRAdL6CtfzG0USrGCQAAj6yJrOC3X2YGZLN1ZUehJAPA9PFBsJcS8GMdY1XvAJAKYHbKcuIqI731Bms7sElB4REEQzeAyFgwX9iszvrBELCbm0vEnma7JJli1SXvWJvsYJlUnfqjCGKKgtX8TbZl58vVNte8Jol5jYOXdB1Da9pNNtTYxGmMWYe6iUHZGtmh0lcgFwzSiECb0y64QSfypEykPnkALQIw+8/eaKwOjnP5bfdAHlqNKKTeEYnI2DuETT/syMOlZwPiAryol8UALf8KnVFlguUt2QnpHl5bTzhLJZ7KvwRIELc/ki5QkR+zxlyI41i62McVwoEvGge/3q1afTJCPz71GDrd9dTridakcgh0nqSA/6H0sqtGg9SpjVGua9a/v0iVZnGj1EaLyBYbZUIXngC940tu/X3Wr3proJnsqEKw0Amq0zvu8Wp8dkMSL3S48DdIHp1fYoh6lJmppxATe2t2j0NYvcfsPME7tYAj+Z2m/ZErhL+p/79ZntzNV8uaNgXn4dPmXnPkSK2N+I=
+  file: build/*
   file_glob: true
-  file:
-    - build/*
   skip_cleanup: true
   on:
     tags: true
