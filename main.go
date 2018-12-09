@@ -92,7 +92,7 @@ func executeCQL(cluster *gocql.ClusterConfig, cmd string) {
 	//cmd = strings.Replace(cmd, "\r", "", -1) //TODO better
 	fmt.Println("Executing CQL command", cmd)
 	if strings.HasPrefix(strings.ToLower(cmd), "use") { //Change keyspace
-		*keyspace = strings.ToLower(strings.TrimSpace(strings.Trim(cmd[3:], ";")))
+		*keyspace = strings.TrimSpace(strings.Trim(cmd[3:], ";"))
 		//time.Sleep(30 * time.Second) //TODO better to wait for keyspace if is in creation
 		fmt.Println("Success !")
 		return
