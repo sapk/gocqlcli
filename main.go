@@ -53,6 +53,7 @@ func main() {
 	}
 	cluster := gocql.NewCluster(server)
 	cluster.Timeout = 30 * time.Second
+	cluster.ConnectTimeout = 30 * time.Second
 	if s, err := strconv.ParseInt(port, 10, 64); err == nil {
 		cluster.Port = int(s)
 	} else {
